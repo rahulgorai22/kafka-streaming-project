@@ -19,7 +19,8 @@ This had 4 major components -
 
 # Design
 
-<iframe style="border:none" width="800" height="450" src="https://whimsical.com/embed/Drerk2H4sv4sE55RTaGWcP"></iframe>
+![kafka](https://github.com/rahulgorai22/kafka-streaming-project/assets/42316294/9348df29-0c9f-476b-9afe-b6238baf74fd)
+
 
 # Running Application
 
