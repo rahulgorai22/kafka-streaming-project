@@ -1,0 +1,20 @@
+# Copyright (c) 2024- CrowdStrike, Inc. All rights reserved.
+ARG BUILDER_IMAGE_NAME
+
+# Build image
+FROM $BUILDER_IMAGE_NAME as builder
+
+RUN go install golang.org/x/lint/golint@v0.0.0-20210508222113-6edffad5e616
+RUN mkdir /build
+ADD . /build/
+WORKDIR /build
+RUN export GOFLAGS=-mod=vendor \
+    && go list ./... | grep -v vendor | xargs go vet \
+    && go list ./... | grep -v vendor | xargs golint \
+    && CGO_ENABLED=0 go build -o api -a ./api/
+
+# Deployment image
+FROM scratch as deploy
+WORKDIR /
+COPY --from=builder /build/api /
+CMD ["/api"]

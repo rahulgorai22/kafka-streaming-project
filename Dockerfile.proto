@@ -1,0 +1,13 @@
+# Copyright (c) 2024- CrowdStrike, Inc. All rights reserved.
+ARG BUILDER_IMAGE_NAME
+FROM $BUILDER_IMAGE_NAME as builder
+ENV GOPROXY="https://go-proxy.crwd.dev,https://go.crwd.dev"
+
+# install protoc
+RUN apk update \
+    && apk add protobuf
+
+# install protoc-gen-go
+RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+
+WORKDIR /opt

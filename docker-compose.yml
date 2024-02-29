@@ -1,0 +1,82 @@
+version: '3.7'
+
+networks:
+  app-tier:
+    driver: bridge
+
+services:
+  # kafka_event_pipeline:
+  # TODO: uncomment and fill out the necessary details
+
+  api:
+    image: cs-streaming-take-home-task-api:latest
+    networks:
+      - app-tier
+    ports:
+      - 8080:8080
+
+  event_generator:
+    image: cs-streaming-take-home-task-event-generator:latest
+    depends_on:
+      cassandrasetup:
+        condition: service_completed_successfully
+      kafkasetup:
+        condition: service_completed_successfully
+    networks:
+      - app-tier
+    volumes:
+      - ${HOST_WORKDIR}/event_generator/test_data.json:/opt/test_data.json:ro
+
+  pipeline:
+    image: cs-streaming-take-home-task-kafka-event-pipeline:latest
+    depends_on:
+      cassandrasetup:
+        condition: service_completed_successfully
+      kafkasetup:
+        condition: service_completed_successfully
+    networks:
+      - app-tier
+
+  kafka:
+    image: bitnami/kafka:latest
+    environment:
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+    ports:
+      - 9092:9092
+    networks:
+      - app-tier
+
+  kafkasetup:
+    image: bitnami/kafka:latest
+    depends_on:
+      - kafka
+    networks:
+      - app-tier
+    restart: "no"
+    entrypoint: [ "bash", "-c", "/opt/bitnami/kafka/bin/kafka-topics.sh --create --bootstrap-server kafka:9092 --replication-factor 1 --partitions 1 --topic 'cs.sensor_events' --if-not-exists"]
+
+  cassandra:
+    image: cassandra:latest
+    ports:
+      - 9042:9042
+    networks:
+      - app-tier
+    volumes:
+      - /var/lib/cassandra
+
+  cassandrasetup:
+    image: cassandra:latest
+    depends_on:
+      - cassandra
+    networks:
+      - app-tier
+    restart: "no"
+    entrypoint: ["/opt/cassandra_init.sh"]
+    volumes:
+      - ./cassandra_init.sh:/opt/cassandra_init.sh
+

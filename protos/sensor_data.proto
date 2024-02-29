@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package protos.sensor_data;
+option go_package = "../protos";
+
+enum Platform {
+  PLATFORM_UNUSED = 0;
+  PLATFORM_WINDOWS = 1;
+  PLATFORM_OSX = 2;
+  PLATFORM_LINUX = 3;
+}
+
+enum DataType {
+  DATA_TYPE_UNKNOWN = 0;
+  DATA_TYPE_EXE = 1;
+  DATA_TYPE_DLL = 2;
+  DATA_TYPE_MS_WORD = 3;
+  DATA_TYPE_MS_EXCEL = 4;
+  DATA_TYPE_MS_PPT = 5;
+  DATA_TYPE_MS_MACRO = 6;
+  DATA_TYPE_MS_UNKNOWN = 7;
+  DATA_TYPE_MACHO = 8;
+  DATA_TYPE_ELF = 9;
+  DATA_TYPE_PDF = 10;
+}
+
+message SensorData {
+  string customer_id = 1;
+  Platform platform = 2;
+  DataType data_type = 3;
+  bytes data = 4;
+  string sha256 = 5;
+  string event_timestamp = 6;
+}
