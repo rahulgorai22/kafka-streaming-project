@@ -24,6 +24,11 @@ This had 4 major components -
 
 # Running Application
 
+```shell
+# If you have an old docker images of event_generator, kafka_event_pipeline and api then delete the cached docker files.
+rm docker-build-api docker-build-event-generator docker-build-kafka-event-pipeline
+```
+
 
 ```shell
 # To download and vendor the packages run 
